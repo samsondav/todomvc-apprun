@@ -12,7 +12,7 @@ const renderTodoList = (todos) => {
 
         return `<li class="${className}">
             <div class="view">
-                <input class="toggle" type="checkbox" ${checked}>
+                <input class="toggle" type="checkbox" ${checked} onclick='app.run("toggleCompleted", ${todo.id})'>
                 <label>${todo.title}</label>
                 <button class="destroy"></button>
             </div>
@@ -46,6 +46,11 @@ const isAllTodosCompleted = (todos) => {
 const renderToggle = (state) => {
     const checked = isAllTodosCompleted(state.todos) ? 'checked' : '';
     return `<input id="toggle-all" class="toggle-all" type="checkbox" ${checked} onclick='app.run("toggleAllChecked")'>`;
+}
+
+let idSeq = 1;
+function nextId() {
+    return idSeq++;
 }
 
 const render = (state) => `
@@ -110,7 +115,8 @@ const update = {
             newState.todos = state.todos.concat({
                 title: title,
                 completed: false,
-                editing: false
+                editing: false,
+                id: nextId()
             });
         } else {
             newState.unsavedTodo = event.target.value;
@@ -129,6 +135,15 @@ const update = {
     clearCompleted: (state) => {
         const newTodos = state.todos.filter(todo => !todo.completed);
         state.todos = newTodos;
+        return state;
+    },
+    toggleCompleted: (state, id) => {
+        console.log(id);
+        state.todos.forEach(todo => {
+            if (todo.id === id) {
+                todo.completed = !todo.completed;
+            }
+        })
         return state;
     }
 };
