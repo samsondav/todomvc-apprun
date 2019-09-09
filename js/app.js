@@ -39,9 +39,17 @@ const renderTodoList = (todos) => {
     //     <input class="edit" value="Rule the web">
     // </li>`
 }
+
+const isAllTodosCompleted = (todos) => {
+    return todos.every((todo) => todo.completed)
+}
+const renderToggle = (state) => {
+    const checked = isAllTodosCompleted(state.todos) ? 'checked' : '';
+    return `<input id="toggle-all" class="toggle-all" type="checkbox" ${checked} onclick='app.run("toggleAllChecked")'>`;
+}
+
 const render = (state) => `
-    <section class="main">
-        <input id="toggle-all" class="toggle-all" type="checkbox">
+    <section class="main">` + renderToggle(state) + `
         <label for="toggle-all">Mark all as complete</label>
         <ul class="todo-list">` + renderTodoList(state.todos) + `
 
@@ -80,8 +88,20 @@ const view = state => {
     return html;
 }
 
+function markAllTodosIncomplete(state) {
+    state.todos.forEach(todo => {
+        todo.completed = false;
+    });
+    return state;
+}
+function markAllTodosComplete(state) {
+    state.todos.forEach(todo => {
+        todo.completed = true;
+    });
+    return state;
+}
 const update = {
-    'newTodo': (state, event) => {
+    newTodo: (state, event) => {
         const newState = Object.assign({}, state);
         const title = event.target.value.trim();
 
@@ -97,6 +117,14 @@ const update = {
         }
         console.log("state", state)
         return newState;
+    },
+    toggleAllChecked: (state) => {
+        if (isAllTodosCompleted(state.todos)) {
+            return markAllTodosIncomplete(state);
+        } else {
+            console.log("balls")
+            return markAllTodosComplete(state);
+        }
     }
 };
 
