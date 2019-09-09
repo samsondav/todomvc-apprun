@@ -17,8 +17,7 @@ const renderTodoList = (todos) => {
                 <button class="destroy"></button>
             </div>
             <input class="edit" value="Create a TodoMVC template">
-        </li>
-        `
+        </li>`;
     }).join("\n");
     //     `
     // <!-- These are here just to show the structure of the list items -->
@@ -84,10 +83,12 @@ const view = state => {
 const update = {
     'newTodo': (state, event) => {
         const newState = Object.assign({}, state);
-        if (event.keyCode === 13) {
+        const title = event.target.value.trim();
+
+        if (event.keyCode === 13 && title.length) {
             newState.unsavedTodo = "";
             newState.todos = state.todos.concat({
-                title: event.target.value,
+                title: title,
                 completed: false,
                 editing: false
             });
