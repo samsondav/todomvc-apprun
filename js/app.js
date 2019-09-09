@@ -17,8 +17,9 @@ const renderTodoList = (todos) => {
                 <button class="destroy"></button>
             </div>
             <input class="edit" value="Create a TodoMVC template">
+        </li>
         `
-    })
+    }).join("\n");
     //     `
     // <!-- These are here just to show the structure of the list items -->
     // <!-- List items should get the class 'editing' when editing and 'completed' when marked as completed -->
