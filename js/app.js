@@ -71,7 +71,7 @@ const render = (state) => `
             </li>
         </ul>
         <!-- Hidden if no completed items are left ↓ -->
-        <button class="clear-completed">Clear completed</button>
+        <button class="clear-completed" onclick='app.run("clearCompleted")'>Clear completed</button>
     </footer>
 `
 
@@ -125,6 +125,11 @@ const update = {
             console.log("balls")
             return markAllTodosComplete(state);
         }
+    },
+    clearCompleted: (state) => {
+        const newTodos = state.todos.filter(todo => !todo.completed);
+        state.todos = newTodos;
+        return state;
     }
 };
 
