@@ -104,40 +104,48 @@ function deleteTodoByID(state, id) {
         state.todos.splice(idx, 1);
     }
 }
+
+function saveToLocalStorage(state) {
+    const todos = state.todos.map(todo => {
+        return { ...todo, editing: false };
+    })
+    localStorage.setItem('todos', JSON.stringify(todos));
+    return state;
+}
+
 const update = {
     newTodo: (state, event) => {
-        const newState = Object.assign({}, state);
         const title = event.target.value.trim();
 
         if (event.keyCode === 13 && title.length) {
-            newState.unsavedTodo = "";
-            newState.todos = state.todos.concat({
+            state.unsavedTodo = "";
+            state.todos = state.todos.concat({
                 title: title,
                 completed: false,
                 editing: false,
                 id: nextId()
             });
         } else {
-            newState.unsavedTodo = event.target.value;
+            state.unsavedTodo = event.target.value;
         }
-        return newState;
+        return saveToLocalStorage(state);
     },
     toggleAllChecked: (state) => {
         if (isAllTodosCompleted(state.todos)) {
-            return markAllTodosIncomplete(state);
+            markAllTodosIncomplete(state);
         } else {
-            console.log("balls")
-            return markAllTodosComplete(state);
+            markAllTodosComplete(state);
         }
+        return saveToLocalStorage(state);
     },
     clearCompleted: (state) => {
         const newTodos = state.todos.filter(todo => !todo.completed);
         state.todos = newTodos;
-        return state;
+        return saveToLocalStorage(state);
     },
     toggleCompleted: (state, id) => {
         updateTodoByID(state, id, todo => todo.completed = !todo.completed);
-        return state;
+        return saveToLocalStorage(state);
     },
     initiateEdit: (state, id) => {
         updateTodoByID(state, id, todo => todo.editing = true);
@@ -155,18 +163,19 @@ const update = {
             updateTodoByID(state, id, todo => todo.editing = false);
         }
 
-        return state;
+        return saveToLocalStorage(state);
     },
     deleteTodo: (state, id) => {
-        console.log("delete!")
         deleteTodoByID(state, id);
-        return state;
+
+        return saveToLocalStorage(state);
     }
 };
 
+const restoredTodos = JSON.parse(localStorage.getItem('todos') || '[]');
 const state = {
     unsavedTodo: "",
-    todos: []
+    todos: restoredTodos
 };
 
 app.start('app', state, view, update);
