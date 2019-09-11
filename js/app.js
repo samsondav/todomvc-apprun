@@ -32,7 +32,10 @@ const renderTodoList = (state) => {
 }
 
 const isAllTodosCompleted = (todos) => {
-    return todos.every((todo) => todo.completed)
+    return todos.every((todo) => todo.completed);
+}
+const isAnyTodosCompleted = (todos) => {
+    return todos.some((todo) => todo.completed);
 }
 const renderToggle = (state) => {
     const checked = isAllTodosCompleted(state.todos) ? 'checked' : '';
@@ -42,6 +45,14 @@ const renderCounter = (state) => {
     const todosCount = state.todos.filter(todo => !todo.completed).length;
     const itemPluralised = todosCount === 1 ? "item" : "items";
     return `<span class="todo-count"><strong>${todosCount}</strong> ${itemPluralised} left</span>`
+}
+
+const renderCompleted = (state) => {
+    if (isAnyTodosCompleted(state.todos)) {
+        return `<button class="clear-completed" onclick='app.run("clearCompleted")'>Clear completed</button>`
+    } else {
+        return '';
+    }
 }
 
 let idSeq = 1;
@@ -67,9 +78,7 @@ const render = (state) => `
             <li>
                 <a class="${state.viewFilter === "Completed" ? "selected" : ""}" href="#completed">Completed</a>
             </li>
-        </ul>
-        <!-- Hidden if no completed items are left ↓ -->
-        <button class="clear-completed" onclick='app.run("clearCompleted")'>Clear completed</button>
+        </ul>` + renderCompleted(state) + `
     </footer>
 `
 
