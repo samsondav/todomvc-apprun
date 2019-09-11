@@ -1,43 +1,27 @@
 const renderTodoList = (todos) => {
     return todos.map((todo) => {
         let className = '';
+        let editFocused = '';
 
         if (todo.completed) {
             className = 'completed';
         } else if (todo.editing) {
             className = 'editing';
+            editFocused = 'focused';
         }
 
         let checked = todo.completed ? 'checked' : '';
+        console.log(editFocused);
 
         return `<li class="${className}">
             <div class="view">
                 <input class="toggle" type="checkbox" ${checked} onclick='app.run("toggleCompleted", ${todo.id})'>
-                <label>${todo.title}</label>
+                <label ondblclick='app.run("initiateEdit", ${todo.id})'>${todo.title}</label>
                 <button class="destroy"></button>
             </div>
-            <input class="edit" value="Create a TodoMVC template">
+            <input id="todo-edit-input-${todo.id}" class="edit" value="${todo.title}" onblur='app.run("stopEditing", ${todo.id})' onkeyup='app.run("editTodo", ${todo.id}, event)'>
         </li>`;
     }).join("\n");
-    //     `
-    // <!-- These are here just to show the structure of the list items -->
-    // <!-- List items should get the class 'editing' when editing and 'completed' when marked as completed -->
-    // <li class="completed">
-    //     <div class="view">
-    //         <input class="toggle" type="checkbox" checked>
-    //         <label>Taste JavaScript</label>
-    //         <button class="destroy"></button>
-    //     </div>
-    //     <input class="edit" value="Create a TodoMVC template">
-    // </li>
-    // <li>
-    //     <div class="view">
-    //         <input class="toggle" type="checkbox">
-    //         <label>Buy a unicorn</label>
-    //         <button class="destroy"></button>
-    //     </div>
-    //     <input class="edit" value="Rule the web">
-    // </li>`
 }
 
 const isAllTodosCompleted = (todos) => {
@@ -105,6 +89,13 @@ function markAllTodosComplete(state) {
     });
     return state;
 }
+function updateTodoByID(state, id, fun) {
+    state.todos.forEach(todo => {
+        if (todo.id.toString() === id.toString()) {
+            fun(todo);
+        }
+    })
+}
 const update = {
     newTodo: (state, event) => {
         const newState = Object.assign({}, state);
@@ -121,7 +112,6 @@ const update = {
         } else {
             newState.unsavedTodo = event.target.value;
         }
-        console.log("state", state)
         return newState;
     },
     toggleAllChecked: (state) => {
@@ -138,12 +128,25 @@ const update = {
         return state;
     },
     toggleCompleted: (state, id) => {
-        console.log(id);
-        state.todos.forEach(todo => {
-            if (todo.id === id) {
-                todo.completed = !todo.completed;
-            }
-        })
+        updateTodoByID(state, id, todo => todo.completed = !todo.completed);
+        return state;
+    },
+    initiateEdit: (state, id) => {
+        updateTodoByID(state, id, todo => todo.editing = true);
+        return state;
+    },
+    stopEditing: (state, id) => {
+        updateTodoByID(state, id, todo => todo.editing = false);
+        return state;
+    },
+    editTodo: (state, id, event) => {
+        const title = event.target.value.trim();
+        updateTodoByID(state, id, todo => todo.title = title);
+
+        if (event.keyCode === 13 && title.length) {
+            updateTodoByID(state, id, todo => todo.editing = false);
+        }
+
         return state;
     }
 };
@@ -154,3 +157,6 @@ const state = {
 };
 
 app.start('app', state, view, update);
+app.on("initiateEdit", (id) => {
+    document.getElementById(`todo-edit-input-${id}`).focus();
+});
