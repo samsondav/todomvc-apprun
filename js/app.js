@@ -28,6 +28,11 @@ const renderToggle = (state) => {
     const checked = isAllTodosCompleted(state.todos) ? 'checked' : '';
     return `<input id="toggle-all" class="toggle-all" type="checkbox" ${checked} onclick='app.run("toggleAllChecked")'>`;
 }
+const renderCounter = (state) => {
+    const todosCount = state.todos.filter(todo => !todo.completed).length;
+    const itemPluralised = todosCount === 1 ? "item" : "items";
+    return `<span class="todo-count"><strong>${todosCount}</strong> ${itemPluralised} left</span>`
+}
 
 let idSeq = 1;
 function nextId() {
@@ -41,9 +46,8 @@ const render = (state) => `
 
         </ul>
     </section>
-    <footer class="footer">
-        <!-- This should be '0 items left' by default -->
-        <span class="todo-count"><strong>0</strong> item left</span>
+    <footer class="footer"> ` + renderCounter(state) + `
+
         <!-- Remove this if you don't implement routing -->
         <ul class="filters">
             <li>
