@@ -1,5 +1,15 @@
 const renderTodoList = (state) => {
-    return state.todos.filter(state.filterFun).map((todo) => {
+    let filterFun;
+
+    if (state.viewFilter === "Active") {
+        filterFun = todo => !todo.completed;
+    } else if (state.viewFilter === "Completed") {
+        filterFun = todo => todo.completed;
+    } else {
+        filterFun = todo => true;
+    }
+
+    return state.todos.filter(filterFun).map((todo) => {
         let className = '';
 
         if (todo.completed) {
@@ -47,17 +57,15 @@ const render = (state) => `
         </ul>
     </section>
     <footer class="footer"> ` + renderCounter(state) + `
-
-        <!-- Remove this if you don't implement routing -->
         <ul class="filters">
             <li>
-                <a class="selected" href="#">All</a>
+                <a class="${state.viewFilter === "All" ? "selected" : ""}" href="#">All</a>
             </li>
             <li>
-                <a href="#active">Active</a>
+                <a class="${state.viewFilter === "Active" ? "selected" : ""}" href="#active">Active</a>
             </li>
             <li>
-                <a href="#completed">Completed</a>
+                <a class="${state.viewFilter === "Completed" ? "selected" : ""}" href="#completed">Completed</a>
             </li>
         </ul>
         <!-- Hidden if no completed items are left ↓ -->
@@ -171,16 +179,15 @@ const update = {
         return saveToLocalStorage(state);
     },
     "#active": (state) => {
-        state.filterFun = todo => !todo.completed;
+        state.viewFilter = "Active";
         return state;
     },
     "#completed": (state) => {
-        console.log("balls")
-        state.filterFun = todo => todo.completed;
+        state.viewFilter = "Completed";
         return state;
     },
     "#": (state) => {
-        state.filterFun = todo => true;
+        state.viewFilter = "All";
         return state;
     }
 };
@@ -189,7 +196,7 @@ const restoredTodos = JSON.parse(localStorage.getItem('todos') || '[]');
 const state = {
     unsavedTodo: "",
     todos: restoredTodos,
-    filterFun: todo => true
+    viewFilter: "All"
 };
 
 app.start('app', state, view, update);
