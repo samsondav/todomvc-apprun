@@ -1,23 +1,20 @@
 const renderTodoList = (todos) => {
     return todos.map((todo) => {
         let className = '';
-        let editFocused = '';
 
         if (todo.completed) {
             className = 'completed';
         } else if (todo.editing) {
             className = 'editing';
-            editFocused = 'focused';
         }
 
         let checked = todo.completed ? 'checked' : '';
-        console.log(editFocused);
 
         return `<li class="${className}">
             <div class="view">
                 <input class="toggle" type="checkbox" ${checked} onclick='app.run("toggleCompleted", ${todo.id})'>
                 <label ondblclick='app.run("initiateEdit", ${todo.id})'>${todo.title}</label>
-                <button class="destroy"></button>
+                <button onclick='app.run("deleteTodo", ${todo.id})' class="destroy"></button>
             </div>
             <input id="todo-edit-input-${todo.id}" class="edit" value="${todo.title}" onblur='app.run("stopEditing", ${todo.id})' onkeyup='app.run("editTodo", ${todo.id}, event)'>
         </li>`;
@@ -96,6 +93,13 @@ function updateTodoByID(state, id, fun) {
         }
     })
 }
+
+function deleteTodoByID(state, id) {
+    const idx = state.todos.findIndex(todo => todo.id === id)
+    if (idx !== -1) {
+        state.todos.splice(idx, 1);
+    }
+}
 const update = {
     newTodo: (state, event) => {
         const newState = Object.assign({}, state);
@@ -147,6 +151,11 @@ const update = {
             updateTodoByID(state, id, todo => todo.editing = false);
         }
 
+        return state;
+    },
+    deleteTodo: (state, id) => {
+        console.log("delete!")
+        deleteTodoByID(state, id);
         return state;
     }
 };
