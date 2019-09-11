@@ -1,5 +1,5 @@
-const renderTodoList = (todos) => {
-    return todos.map((todo) => {
+const renderTodoList = (state) => {
+    return state.todos.filter(state.filterFun).map((todo) => {
         let className = '';
 
         if (todo.completed) {
@@ -42,7 +42,7 @@ function nextId() {
 const render = (state) => `
     <section class="main">` + renderToggle(state) + `
         <label for="toggle-all">Mark all as complete</label>
-        <ul class="todo-list">` + renderTodoList(state.todos) + `
+        <ul class="todo-list">` + renderTodoList(state) + `
 
         </ul>
     </section>
@@ -51,13 +51,13 @@ const render = (state) => `
         <!-- Remove this if you don't implement routing -->
         <ul class="filters">
             <li>
-                <a class="selected" href="#/">All</a>
+                <a class="selected" href="#">All</a>
             </li>
             <li>
-                <a href="#/active">Active</a>
+                <a href="#active">Active</a>
             </li>
             <li>
-                <a href="#/completed">Completed</a>
+                <a href="#completed">Completed</a>
             </li>
         </ul>
         <!-- Hidden if no completed items are left ↓ -->
@@ -169,13 +169,27 @@ const update = {
         deleteTodoByID(state, id);
 
         return saveToLocalStorage(state);
+    },
+    "#active": (state) => {
+        state.filterFun = todo => !todo.completed;
+        return state;
+    },
+    "#completed": (state) => {
+        console.log("balls")
+        state.filterFun = todo => todo.completed;
+        return state;
+    },
+    "#": (state) => {
+        state.filterFun = todo => true;
+        return state;
     }
 };
 
 const restoredTodos = JSON.parse(localStorage.getItem('todos') || '[]');
 const state = {
     unsavedTodo: "",
-    todos: restoredTodos
+    todos: restoredTodos,
+    filterFun: todo => true
 };
 
 app.start('app', state, view, update);
