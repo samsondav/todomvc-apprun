@@ -55,19 +55,8 @@ const renderCompleted = (state) => {
     }
 }
 
-let idSeq = 1;
-function nextId() {
-    return idSeq++;
-}
-
-const render = (state) => `
-    <section class="main">` + renderToggle(state) + `
-        <label for="toggle-all">Mark all as complete</label>
-        <ul class="todo-list">` + renderTodoList(state) + `
-
-        </ul>
-    </section>
-    <footer class="footer"> ` + renderCounter(state) + `
+const renderFilters = (state) => {
+    return `
         <ul class="filters">
             <li>
                 <a class="${state.viewFilter === "All" ? "selected" : ""}" href="#">All</a>
@@ -78,12 +67,32 @@ const render = (state) => `
             <li>
                 <a class="${state.viewFilter === "Completed" ? "selected" : ""}" href="#completed">Completed</a>
             </li>
-        </ul>` + renderCompleted(state) + `
+        </ul>`
+}
+
+let idSeq = 1;
+function nextId() {
+    return idSeq++;
+}
+
+const render = (state) => `
+    <section class="main">` +
+    renderToggle(state) + `
+        <label for="toggle-all">Mark all as complete</label>
+        <ul class="todo-list">` +
+    renderTodoList(state) + `
+        </ul>
+    </section>
+    <footer class="footer"> ` +
+    renderCounter(state) +
+    renderFilters(state) +
+    renderCompleted(state) + `
     </footer>
 `
 
 const view = state => {
-    let html = `<header class="header">
+    let html = `
+    <header class="header">
         <h1>todos</h1>
         <input value='${state.unsavedTodo}' class="new-todo" placeholder="What needs to be done?" autofocus onkeyup='app.run("newTodo", event)' />
     </header>`
@@ -165,7 +174,7 @@ const update = {
         return saveToLocalStorage(state);
     },
     initiateEdit: (state, id) => {
-        updateTodoByID(state, id, todo => todo.editing = true);
+        updateTodoByID(state, id, todo => !todo.completed ? todo.editing = true : null);
         return state;
     },
     stopEditing: (state, id) => {
